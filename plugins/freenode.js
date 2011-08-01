@@ -20,6 +20,7 @@ Freenode.prototype.init = function () {
 				return;
 			}
 			isConnected = true;
+			console.log("Identifying with NickServ.");
 			if (nerdie.config.plugins.freenode && nerdie.config.plugins.freenode.password) {
 				nerdie.bot.say('NickServ', 'id ' + nerdie.config.plugins.freenode.password);
 			}
