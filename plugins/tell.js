@@ -93,25 +93,27 @@ var activityHandler = function (msg) {
 	if (!isChannel(msg.source)) {
 		return; // early; nothing to see here
 	}
-	db.fetch({},
-		function (doc, key) {
-			if (doc.source == msg.source && doc.recipient == msg.user) {
-				return true;
-			}
-		},
-		function (err, results) {
-			if (err) {
-				if ('No Records' !== err.message) {
-					throw err;
+	try {
+		db.fetch({},
+			function (doc, key) {
+				if (doc.source == msg.source && doc.recipient == msg.user) {
+					return true;
 				}
-				return;
+			},
+			function (err, results) {
+				if (err) {
+					if ('No Records' !== err.message) {
+						throw err;
+					}
+					return;
+				}
+				results.forEach(function (data) {
+					msg.say(msg.user + ": (from: " + data.msg.sender + ", " + ago(data.msg.time) + " ago) " + data.msg.content);
+					db.remove(data._key, function () {})
+				});
 			}
-			results.forEach(function (data) {
-				msg.say(msg.user + ": (from: " + data.msg.sender + ", " + ago(data.msg.time) + " ago) " + data.msg.content);
-				db.remove(data._key, function () {})
-			});
-		}
-	);
+		);
+	} catch (e) { /* ignore DB errors */ }
 }
 
 module.exports = Tell;
