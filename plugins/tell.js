@@ -38,7 +38,7 @@ var isChannel = function (source) {
 	return false;
 };
 var tellHandler = function (msg) {
-	if (!isChannel(msg.source)) {
+	if (!isChannel(msg.source.toString())) {
 		msg.say('You must user reminders within the channel where they will be relayed.');
 		return;
 	}
@@ -53,7 +53,7 @@ var tellHandler = function (msg) {
 		myInterface.uniqueId(),
 		{
 			recipient: tellNick,
-			source: msg.source,
+			source: msg.source.toString(),
 			msg: {
 				time: Date.now(),
 				sender: msg.user,
@@ -90,13 +90,13 @@ var ago = function (ts) {
 	return 'seconds';
 };
 var activityHandler = function (msg) {
-	if (!isChannel(msg.source)) {
+	if (!isChannel(msg.source.toString())) {
 		return; // early; nothing to see here
 	}
 	try {
 		db.fetch({},
 			function (doc, key) {
-				if (doc.source == msg.source && doc.recipient == msg.user) {
+				if (doc.source == msg.source.toString() && doc.recipient == msg.user) {
 					return true;
 				}
 			},
