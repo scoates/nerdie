@@ -1,4 +1,5 @@
 var http = require('http')
+  , detaco = require('detaco')
   , querystring = require('querystring');
 
 var NerdieInterface = require('nerdie_interface.js');
@@ -56,9 +57,9 @@ Twitter.prototype.init = function () {
 Twitter.prototype.getStatus = function (num, callback) {
 	var plugin = this;
 	var options = {
-		'host': 'twitter.com',
+		'host': 'api.twitter.com',
 		port: 80,
-		path: '/statuses/show/' + encodeURIComponent(num) + '.json'
+		path: '/1/statuses/show/' + encodeURIComponent(num) + '.json'
 	};
 	var data = "";
 	http.get(options, function(res) {
@@ -72,7 +73,7 @@ Twitter.prototype.getStatus = function (num, callback) {
 				callback("Invalid tweet?");
 			}
 			if (data && undefined !== data.user) {
-				callback(plugin.formatTweet(data));
+				detaco.resolve_string(plugin.formatTweet(data), callback);
 			}
 		});
 	});
@@ -98,7 +99,7 @@ Twitter.prototype.getUserStatus = function (username, index, callback) {
 				callback("Invalid tweet?");
 			}
 			if (data && undefined !== data[index] && undefined != data[index].user) {
-				callback(plugin.formatTweet(data[index]));
+				detaco.resolve_string(plugin.formatTweet(data[index]), callback);
 			}
 		});
 	});

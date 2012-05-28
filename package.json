@@ -23,6 +23,7 @@
     "supervisor": ">=0.3.2",
     "sandbox": ">=0.8.3",
     "codepad": ">=0.1.1",
+    "detaco": ">=0.0.1",
     "xml2js": ">=0.1.14"
   },
   "bin": { "nerdie": "./server.js" }
