@@ -1,10 +1,12 @@
 var NerdieInterface = require('nerdie_interface.js');
 
 var db;
-var publicReminders = 3;
 var myInterface;
+var allChannels = false;
+var nerdie;
 
 function Tell(parentNerdie) {
+	nerdie = parentNerdie;
 	this.pluginInterface = new NerdieInterface(
 		parentNerdie,
 		this,
@@ -25,6 +27,9 @@ Tell.prototype.init = function () {
 		this.pluginInterface.anchoredPattern('ask', true),
 		tellHandler
 	);
+	if (myInterface.nerdie.config.plugins.tell && myInterface.nerdie.config.plugins.tell.allChannels) {
+		allChannels = myInterface.nerdie.config.plugins.tell.allChannels;
+	}
 };
 Tell.prototype.gotDb = function (incomingDb) {
 	db = incomingDb;
@@ -96,7 +101,7 @@ var activityHandler = function (msg) {
 	try {
 		db.fetch({},
 			function (doc, key) {
-				if (doc.source == msg.source.toString() && doc.recipient == msg.user) {
+				if ((allChannels || doc.source == msg.source.toString()) && doc.recipient == msg.user) {
 					return true;
 				}
 			},
@@ -108,7 +113,7 @@ var activityHandler = function (msg) {
 					return;
 				}
 				results.forEach(function (data) {
-					msg.say(msg.user + ": (from: " + data.msg.sender + ", " + ago(data.msg.time) + " ago) " + data.msg.content);
+					nerdie.bot.say(data.source.toString(), msg.user + ": (from: " + data.msg.sender + ", " + ago(data.msg.time) + " ago) " + data.msg.content);
 					db.remove(data._key, function () {})
 				});
 			}
