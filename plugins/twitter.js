@@ -40,10 +40,12 @@ Twitter.prototype.init = function () {
 	// URLs
 	// 1) https://twitter.com/username/status/123123123123123
 	// 2) https://twitter.com/#!/username/status/123123123123123
+	// 3) https://twitter.com/username/statuses/123123123123123
+	// 4) https://twitter.com/#!/username/statuses/123123123123123
 	this.pluginInterface.registerPattern(
-		/https?:\/\/twitter.com\/(#!\/)?(.+?)\/status\/([0-9]+)/i,
+		/https?:\/\/twitter.com\/(#!\/)?(.+?)\/status(es)?\/([0-9]+)/i,
 		function (msg) {
-			var num = msg.match_data[3];
+			var num = msg.match_data[4];
 			plugin.getStatus(num, msg.say);
 		}
 	);
