@@ -96,8 +96,8 @@ Pivotal.prototype.formatStory = function (story, include_url, callback) {
 	if (estimate && estimate !== '-1') {
 		trailer.push(estimate + ' points');
 	}
-	if (owner) {
-		trailer.push('owned by ' + owner);
+	if (owner && owner.person) {
+		trailer.push('owned by ' + owner.person.name);
 	}
 	var out = name + ' -- ' + trailer.join(', ');
 	callback(out);
