@@ -53,7 +53,7 @@ Pivotal.prototype.getStory = function (story_id, include_url, callback) {
 	var options = {
 		'host': 'www.pivotaltracker.com',
 		path: '/services/v4/stories/' + story_id,
-		headers: {'x-trackertoken': 'e08c68d7e45e84addd8c45be94b84233'}
+		headers: {'x-trackertoken': tracker_token}
 	};
 	var data = "";
 	var req = https.request(options, function(res) {
