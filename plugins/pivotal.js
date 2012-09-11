@@ -84,7 +84,44 @@ Pivotal.prototype.getStory = function (story_id, include_url, callback) {
 	req.end();
 };
 
+Pivotal.prototype.getProject = function (project_id, callback) {
+	var plugin = this;
+	var options = {
+		'host': 'www.pivotaltracker.com',
+		path: '/services/v4/projects/' + project_id,
+		headers: {'x-trackertoken': tracker_token}
+	};
+	var data = "";
+	var req = https.request(options, function(res) {
+		res.on('data', function(chunk) {
+			data += chunk;
+		});
+		res.on('end', function() {
+			var project;
+			if (res.statusCode === 200) {
+				var parser = new xml2js.Parser();
+				parser.addListener('end', function(project) {
+					callback(project);
+				});
+				try {
+					parser.parseString(data);
+				} catch(e) {
+					callback(false);
+					console.log(e);
+				}
+			} else {
+				callback('Got status ' + res.statusCode + ' from pivotal API');
+			}
+		});
+	});
+	req.on('error', function(e) {
+		callback('HTTP error retrieving project ' + project_id);
+	});
+	req.end();
+};
+
 Pivotal.prototype.formatStory = function (story, include_url, callback) {
+	var plugin = this;
 	var name = story.name
 	var story_type = story.story_type;
 	var state = story.current_state;
@@ -99,14 +136,20 @@ Pivotal.prototype.formatStory = function (story, include_url, callback) {
 	if (owner && owner.person) {
 		trailer.push('owned by ' + owner.person.name);
 	}
-	var out = name + ' -- ' + trailer.join(', ');
-	callback(out);
-	if (typeof description === 'string' && description !== '') {
-		callback(description);
-	}
-	if (include_url) {
-		callback(story.url);
-	}
+
+	plugin.getProject = plugin.getProject(story.project_id['#'], function (project) {
+		if (!project) {
+			project = {name: '(unknown)'};
+		}
+		var out = '[' + project.name + '] ' + name + ' -- ' + trailer.join(', ');
+		callback(out);
+		if (typeof description === 'string' && description !== '') {
+			callback(description);
+		}
+		if (include_url) {
+			callback(story.url);
+		}
+	});
 };
 
 module.exports = Pivotal;
