@@ -23,7 +23,6 @@
             }
         },
         "pivotal": {
-            "default_project": "12345",
             "auth": {
                 "token": "XXXXXXXXXXXXX"
             }

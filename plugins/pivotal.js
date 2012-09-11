@@ -5,7 +5,6 @@ var https = require('https')
 var NerdieInterface = require('nerdie_interface.js');
 
 var tracker_token;
-var default_project;
 var bot;
 var nerdie;
 var enabled = true;
@@ -19,7 +18,6 @@ function Pivotal(parentNerdie) {
 	if (parentNerdie.config.plugins.pivotal.auth) {
 		tracker_token = parentNerdie.config.plugins.pivotal.auth.token;
 	}
-	default_project = parentNerdie.config.plugins.pivotal.default_project;
 	bot = parentNerdie.bot;
 	nerdie = parentNerdie;
 }
@@ -54,7 +52,7 @@ Pivotal.prototype.getStory = function (story_id, include_url, callback) {
 	var plugin = this;
 	var options = {
 		'host': 'www.pivotaltracker.com',
-		path: '/services/v3/projects/' + default_project + '/stories/' + story_id,
+		path: '/services/v4/stories/' + story_id,
 		headers: {'x-trackertoken': 'e08c68d7e45e84addd8c45be94b84233'}
 	};
 	var data = "";
