@@ -137,7 +137,7 @@ Pivotal.prototype.formatStory = function (story, include_url, callback) {
 		trailer.push('owned by ' + owner.person.name);
 	}
 
-	plugin.getProject = plugin.getProject(story.project_id['#'], function (project) {
+	plugin.getProject(story.project_id['#'], function (project) {
 		if (!project) {
 			project = {name: '(unknown)'};
 		}
