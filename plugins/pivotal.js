@@ -8,6 +8,7 @@ var tracker_token;
 var bot;
 var nerdie;
 var enabled = true;
+var config;
 
 function Pivotal(parentNerdie) {
 	this.pluginInterface = new NerdieInterface(parentNerdie, this);
@@ -20,6 +21,7 @@ function Pivotal(parentNerdie) {
 	}
 	bot = parentNerdie.bot;
 	nerdie = parentNerdie;
+	config = parentNerdie.config;
 }
 
 Pivotal.prototype.init = function () {
@@ -46,6 +48,14 @@ Pivotal.prototype.init = function () {
 			plugin.getStory(num, false, msg.say);
 		}
 	);
+
+	if (config.plugins.pivotal.channel_map) {
+		console.log("Registering bug pattern");
+		this.pluginInterface.registerPattern(
+			this.pluginInterface.anchoredPattern('bug', true),
+			plugin.newStory
+		);
+	}
 }
 
 Pivotal.prototype.getStory = function (story_id, include_url, callback) {
@@ -65,7 +75,7 @@ Pivotal.prototype.getStory = function (story_id, include_url, callback) {
 			if (res.statusCode === 200) {
 				var parser = new xml2js.Parser();
 				parser.addListener('end', function(story) {
-					plugin.formatStory(story, include_url, callback);
+					formatStory(story, include_url, callback);
 				});
 				try {
 					parser.parseString(data);
@@ -84,7 +94,7 @@ Pivotal.prototype.getStory = function (story_id, include_url, callback) {
 	req.end();
 };
 
-Pivotal.prototype.getProject = function (project_id, callback) {
+var getProject = function (project_id, callback) {
 	var plugin = this;
 	var options = {
 		'host': 'www.pivotaltracker.com',
@@ -120,8 +130,7 @@ Pivotal.prototype.getProject = function (project_id, callback) {
 	req.end();
 };
 
-Pivotal.prototype.formatStory = function (story, include_url, callback) {
-	var plugin = this;
+var formatStory = function (story, include_url, callback) {
 	var name = story.name
 	var story_type = story.story_type;
 	var state = story.current_state;
@@ -137,7 +146,7 @@ Pivotal.prototype.formatStory = function (story, include_url, callback) {
 		trailer.push('owned by ' + owner.person.name);
 	}
 
-	plugin.getProject(story.project_id['#'], function (project) {
+	getProject(story.project_id['#'], function (project) {
 		if (!project) {
 			project = {name: '(unknown)'};
 		}
@@ -150,6 +159,77 @@ Pivotal.prototype.formatStory = function (story, include_url, callback) {
 			callback(story.url);
 		}
 	});
+};
+
+var isChannel = function (source) {
+	// check source (# or & means it's a channel)
+	var first = source.substr(0, 1);
+	if ('#' === first || '&' === first) {
+		return true;
+	}
+	return false;
+};
+
+var xmlEscape = function (str) {
+	return str.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;');
+}
+
+Pivotal.prototype.newStory = function (msg) {
+	var subject = msg.match_data[2];
+	var channel = msg.source.toString();
+	if (config.plugins.pivotal.user_map[msg.user]) {
+		var user = config.plugins.pivotal.user_map[msg.user];
+	} else {
+		msg.say('User not in pivotal user map.');
+		return;
+	}
+	if (!isChannel(channel) || !config.plugins.pivotal.channel_map[channel]) {
+		msg.say('No project known for this channel.');
+		return;
+	}
+	projectId = config.plugins.pivotal.channel_map[channel];
+	reqBody = '<story><story_type>bug</story_type><name>' + xmlEscape(subject) + '</name><requested_by>' + user + '</requested_by></story>';
+
+	var options = {
+		'host': 'www.pivotaltracker.com',
+		path: '/services/v3/projects/' + projectId + '/stories',
+		headers: {
+			'x-trackertoken': tracker_token,
+			'Content-type': 'application/xml',
+			'Content-length': reqBody.length,
+		},
+		method: 'POST',
+	};
+	var data = "";
+	var req = https.request(options, function(res) {
+		res.on('data', function(chunk) {
+			data += chunk;
+		});
+		res.on('end', function() {
+			var story;
+			if (res.statusCode >= 200 && res.statusCode < 300) {
+				var parser = new xml2js.Parser();
+				parser.addListener('end', function(story) {
+					formatStory(story, true, msg.say);
+				});
+				try {
+					parser.parseString(data);
+				} catch(e) {
+					msg.say("Unparseable story XML");
+					console.log(e);
+				}
+			} else {
+				msg.say('Got status ' + res.statusCode + ' from pivotal API');
+				console.log(data);
+			}
+		});
+	});
+	req.on('error', function(e) {
+		msg.say('HTTP error retrieving story ' + story_id);
+	});
+	req.write(reqBody);
+	req.end();
+
 };
 
 module.exports = Pivotal;
