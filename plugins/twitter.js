@@ -108,7 +108,8 @@ Twitter.prototype.getUserStatus = function (username, index, callback) {
 }
 
 Twitter.prototype.formatTweet = function (tweet) {
-	var out =  '<@' + tweet.user.screen_name + '> ' + tweet.text;
+	var unDumbed = tweet.text.replace(/\&lt;/g, '<').replace(/\&gt;/g, '>').replace(/\&amp;/g, '&');
+	var out =  '<@' + tweet.user.screen_name + '> ' + unDumbed;
 	return out;
 };
 
