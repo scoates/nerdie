@@ -50,9 +50,9 @@ Pivotal.prototype.init = function () {
 	);
 
 	if (config.plugins.pivotal.channel_map) {
-		console.log("Registering bug pattern");
+		console.log("Registering bug + chore patterns");
 		this.pluginInterface.registerPattern(
-			this.pluginInterface.anchoredPattern('bug', true),
+			this.pluginInterface.anchoredPattern('(bug|chore)', true),
 			plugin.newStory
 		);
 	}
@@ -175,7 +175,8 @@ var xmlEscape = function (str) {
 }
 
 Pivotal.prototype.newStory = function (msg) {
-	var subject = msg.match_data[2];
+	var storyType = msg.match_data[2];
+	var subject = msg.match_data[3];
 	var channel = msg.source.toString();
 	if (config.plugins.pivotal.user_map[msg.user]) {
 		var user = config.plugins.pivotal.user_map[msg.user];
@@ -188,7 +189,7 @@ Pivotal.prototype.newStory = function (msg) {
 		return;
 	}
 	projectId = config.plugins.pivotal.channel_map[channel];
-	reqBody = '<story><story_type>bug</story_type><name>' + xmlEscape(subject) + '</name><requested_by>' + user + '</requested_by></story>';
+	reqBody = '<story><story_type>' + storyType + '</story_type><name>' + xmlEscape(subject) + '</name><requested_by>' + user + '</requested_by></story>';
 
 	var options = {
 		'host': 'www.pivotaltracker.com',
