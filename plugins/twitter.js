@@ -85,9 +85,9 @@ Twitter.prototype.getUserStatus = function (username, index, callback) {
 	var plugin = this;
 	index--; // zero-indexed array
 	var options = {
-		'host': 'twitter.com',
+		'host': 'api.twitter.com',
 		port: 80,
-		path: '/statuses/user_timeline/' + encodeURIComponent(username) + '.json'
+		path: '/1/statuses/user_timeline/' + encodeURIComponent(username) + '.json'
 	};
 	var data = "";
 	http.get(options, function(res) {
@@ -108,8 +108,8 @@ Twitter.prototype.getUserStatus = function (username, index, callback) {
 }
 
 Twitter.prototype.formatTweet = function (tweet) {
-	var out =  '<@' + tweet.user.screen_name + '> ' + tweet.text;
-	out += ' -> http://twitter.com/' + encodeURIComponent(tweet.user.screen_name) + '/status/' + encodeURIComponent(tweet.id_str);
+	var unDumbed = tweet.text.replace(/\&lt;/g, '<').replace(/\&gt;/g, '>').replace(/\&amp;/g, '&');
+	var out =  '<@' + tweet.user.screen_name + '> ' + unDumbed;
 	return out;
 };
 
