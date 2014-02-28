@@ -100,6 +100,11 @@ Github.prototype.newIssue = function (message, callback) {
 
     parseMessage(message, function (message_obj) {
 
+        if (!message_obj) {
+            callback('Incorrect format.');
+            return;
+        };
+
         // setup client
         var github = new GitHubApi({
             version: "3.0.0",
@@ -125,10 +130,11 @@ Github.prototype.newIssue = function (message, callback) {
         github.issues.create(options, function(err, res) {
             if (!res) {
                 callback('Something went wrong.')
-            } else {
-                // display the url in chat
-                callback(res.html_url);
+                return;
             };
+
+            // display the url in chat
+            callback(res.html_url);
         });
     });
 }
@@ -152,6 +158,11 @@ var formatIssue = function(issue_data, repo_name, callback) {
 };
 
 var parseMessage = function(message, callback) {
+    if (!message.match(/([a-z]+)\/([a-z]+)[ ](.*)/)) {
+        callback(false);
+        return;
+    };
+
     var pieces = message.match(/([a-z]+)\/([a-z]+)[ ](.*)/)
     var message_obj = {
         repo_owner: pieces[1],
