@@ -26,6 +26,12 @@
             "auth": {
                 "token": "XXXXXXXXXXXXX"
             }
+        },
+        "github": {
+            "auth": {
+                "username": "username",
+                "password": "password"
+            }
         }
     }
 }

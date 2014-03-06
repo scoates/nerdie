@@ -48,7 +48,7 @@ var tellHandler = function (msg) {
 		return;
 	}
 	var txt = msg.match_data[2];
-	var tellNick = txt.substr(0, txt.indexOf(' '));
+	var tellNick = txt.substr(0, txt.indexOf(' ')).replace(/:/, '');
 	var tellMsg = txt.substr(txt.indexOf(' ') + 1);
 	if (!tellNick || !tellMsg) {
 		// no nick or message supplied
