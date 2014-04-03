@@ -141,6 +141,7 @@ Github.prototype.newIssue = function (message, callback) {
 
 var formatIssue = function(issue_data, repo_name, callback) {
     var title = issue_data.title,
+        requester = issue_data.user.login,
         assignee, milestone;
 
     if (issue_data.assignee) {
@@ -153,7 +154,7 @@ var formatIssue = function(issue_data, repo_name, callback) {
         milestone = issue_data.milestone.title;
     };
 
-    var message = "[" + repo_name + "] " + title + " – owner: " + assignee + ", milestone: " + milestone + ".";
+    var message = "[" + repo_name + "] " + title + " – owner: " + assignee + ", opened by: " + requester + ", milestone: " + milestone + ".";
     callback(message);
 };
 
