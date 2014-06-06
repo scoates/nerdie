@@ -55,7 +55,7 @@ Github.prototype.init = function () {
         this.pluginInterface.anchoredPattern('issue', true),
         function (msg) {
             var message = msg.match_data[2];
-            plugin.newIssue(message, msg.say, msg.source.toString());
+            plugin.newIssue(message, msg.say, msg.source.toString(), msg.user);
         }
     );
 
@@ -96,9 +96,9 @@ Github.prototype.getIssue = function (repo_owner, repo_name, issue_id, callback)
     });
 };
 
-Github.prototype.newIssue = function (message, callback, source) {
+Github.prototype.newIssue = function (message, callback, source, user) {
 
-    parseMessage(message, source, function (message_obj) {
+    parseMessage(message, source, user, function (message_obj) {
 
         if (!message_obj) {
             callback('Incorrect format.');
@@ -159,7 +159,7 @@ var formatIssue = function(issue_data, repo_name, callback) {
     callback(message);
 };
 
-var parseMessage = function(message, source, callback) {
+var parseMessage = function(message, source, user, callback) {
     if (!message.match(/([a-z]+)\/([a-z]+)[ ](.*)/)) {
         callback(false);
         return;
@@ -170,7 +170,7 @@ var parseMessage = function(message, source, callback) {
         repo_owner: pieces[1],
         repo_name: pieces[2],
         issue_title: pieces[3],
-        issue_body: "requested by: " + message.user + " on " + source
+        issue_body: "requested by: " + user + " on " + source
     };
     callback(message_obj);
 };
