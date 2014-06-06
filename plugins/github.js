@@ -168,7 +168,7 @@ var parseMessage = function(message, callback) {
     var message_obj = {
         repo_owner: pieces[1],
         repo_name: pieces[2],
-        issue_title: pieces[3]
+        issue_title: pieces[3] + " - requested by " + msg.user
     };
     callback(message_obj);
 };
