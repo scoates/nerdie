@@ -123,6 +123,7 @@ Github.prototype.newIssue = function (message, callback) {
             user: message_obj.repo_owner,
             repo: message_obj.repo_name,
             title: message_obj.issue_title,
+            body: message_obj.issue_body,
             labels: []
         };
 
@@ -168,7 +169,8 @@ var parseMessage = function(message, callback) {
     var message_obj = {
         repo_owner: pieces[1],
         repo_name: pieces[2],
-        issue_title: pieces[3] + " - requested by " + msg.user
+        issue_title: pieces[3],
+        issue_body: "requested by: " + message.user + " on " + message.source.toString()
     };
     callback(message_obj);
 };
