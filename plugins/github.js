@@ -160,12 +160,12 @@ var formatIssue = function(issue_data, repo_name, callback) {
 };
 
 var parseMessage = function(message, source, user, callback) {
-    if (!message.match(/([a-z]+)\/([a-z]+)[ ](.*)/)) {
+    if (!message.match(/([a-z-]+)\/([a-z-]+)[ ](.*)/)) {
         callback(false);
         return;
     };
 
-    var pieces = message.match(/([a-z]+)\/([a-z]+)[ ](.*)/)
+    var pieces = message.match(/([a-z-]+)\/([a-z-]+)[ ](.*)/)
     var message_obj = {
         repo_owner: pieces[1],
         repo_name: pieces[2],
