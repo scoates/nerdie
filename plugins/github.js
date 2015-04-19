@@ -10,6 +10,7 @@ var config;
 
 var gh_username;
 var gh_password;
+var gh_assumed_owner;
 
 
 function Github(parentNerdie) {
@@ -21,6 +22,7 @@ function Github(parentNerdie) {
     if (parentNerdie.config.plugins.github) {
         gh_username = parentNerdie.config.plugins.github.auth.username;
         gh_password = parentNerdie.config.plugins.github.auth.password;
+        gh_assumed_owner = parentNerdie.config.plugins.github.assume_owner;
     }
 
     bot = parentNerdie.bot;
@@ -63,7 +65,7 @@ Github.prototype.init = function () {
 
 Github.prototype.getIssue = function (repo_owner, repo_name, issue_id, callback) {
 
-    // setup client
+    // set up client
     var github = new GitHubApi({
         version: "3.0.0",
         timeout: 5000
@@ -160,18 +162,29 @@ var formatIssue = function(issue_data, repo_name, callback) {
 };
 
 var parseMessage = function(message, source, user, callback) {
-    if (!message.match(/([a-z-]+)\/([a-z-]+)[ ](.*)/)) {
+    create_regex = /((([a-z-]+)\/)?([a-z-]+))? (.*)/;
+    var pieces = message.match(create_regex);
+
+    if (!pieces) {
         callback(false);
         return;
     };
 
-    var pieces = message.match(/([a-z-]+)\/([a-z-]+)[ ](.*)/)
+    owner = pieces[3];
+    repo = pieces[4];
+    title = pieces[5];
+
+    if (gh_assumed_owner && owner == undefined) {
+        owner = gh_assumed_owner;
+    }
+
     var message_obj = {
-        repo_owner: pieces[1],
-        repo_name: pieces[2],
-        issue_title: pieces[3],
+        repo_owner: owner,
+        repo_name: repo,
+        issue_title: title,
         issue_body: "requested by: " + user + " on " + source
     };
+
     callback(message_obj);
 };
 
