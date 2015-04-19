@@ -27,17 +27,9 @@ Parrot.prototype.init = function () {
 	);
 
 	this.pluginInterface.registerPattern(
-		/^(good)?\s?morning?/i,
+		/^ping/i,
 		function(msg) {
-			var num = 0
-			, responses = [
-				"It's the morning. How *good* can that really be?",
-				"My kingdom for a venti non-fat, no foam, no water 6 pump extra hot chai tea latte. Is that so much to ask for?",
-				"STOP YELLING, PEOPLE ARE SLEEPING."
-				];
-
-			num = Math.floor(Math.random()*responses.length);
-			return msg.say(msg.user + ": " + responses[num]);
+			msg.say(msg.user + ': PONG');
 		}
 	);
 
