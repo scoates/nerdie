@@ -26,11 +26,16 @@ Parrot.prototype.init = function () {
 		}
 	);
 
+	var pong = function(msg) {
+		msg.say(msg.user + ': PONG');
+	};
 	this.pluginInterface.registerPattern(
-		/^ping/i,
-		function(msg) {
-			msg.say(msg.user + ': PONG');
-		}
+		/^ping$/i,
+		pong
+	);
+	this.pluginInterface.registerPattern(
+		this.pluginInterface.anchoredPattern('ping'),
+		pong
 	);
 
 	this.pluginInterface.registerPattern(
