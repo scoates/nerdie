@@ -182,7 +182,7 @@ var parseMessage = function(message, source, user, callback) {
         repo_owner: owner,
         repo_name: repo,
         issue_title: title,
-        issue_body: "requested by: " + user + " on " + source
+        issue_body: "requested by: " + user + " on " + source + "\n\nBe sure to add a body to this issue before assigning it to anyone but yourself."
     };
 
     callback(message_obj);
